@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Product;
+use App\Enum\Size;
 use App\Form\AddToCartType;
 use App\Model\PriceRange;
 use App\Repository\ProductRepository;
@@ -38,7 +39,11 @@ class ProductController extends AbstractController
     #[Route('/product/{id<\d+>}', name: 'app_product_show', methods: ['GET', 'POST'])]
     public function show(Product $product, Request $request, CartService $cart): Response
     {
-        $form = $this->createForm(AddToCartType::class, null, ['product' => $product]);
+        // Présélectionne M si disponible (comme sur le wireframe), sinon la première taille en stock.
+        $inStock = array_values(array_filter(Size::cases(), static fn (Size $size) => $product->getStock($size) > 0));
+        $defaultSize = in_array(Size::M, $inStock, true) ? Size::M : ($inStock[0] ?? null);
+
+        $form = $this->createForm(AddToCartType::class, ['size' => $defaultSize], ['product' => $product]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {

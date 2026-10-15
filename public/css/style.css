@@ -343,8 +343,8 @@ a:focus {
     font-weight: 600;
 }
 
-.product-detail select {
-    min-width: 120px;
+.product-detail .form-row select {
+    width: 160px;
     font: inherit;
     font-size: 1.1rem;
 }

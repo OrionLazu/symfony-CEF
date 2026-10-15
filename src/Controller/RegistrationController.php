@@ -80,7 +80,7 @@ class RegistrationController extends AbstractController
         // La signature est contrôlée à chaque fois, même pour un compte déjà actif :
         // sans cela, l'URL ?id=… suffirait à se connecter à la place de quelqu'un.
         try {
-            $this->emailVerifier->handleEmailConfirmation($request->getUri(), $user);
+            $this->emailVerifier->handleEmailConfirmation($request, $user);
         } catch (VerifyEmailExceptionInterface $exception) {
             $this->addFlash('error', 'Ce lien d\'activation est invalide ou a expiré.');
 
