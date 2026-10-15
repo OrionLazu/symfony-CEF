@@ -111,6 +111,10 @@ class StripeService
         if (!$this->isConfigured()) {
             throw new \LogicException('Stripe n\'est pas configuré : renseignez STRIPE_SECRET_KEY dans le fichier .env.local.');
         }
+        // Garde-fou : la boutique est une démonstration, une clé réelle (sk_live_) ne doit jamais encaisser de paiement.
+        if (!$this->isTestMode()) {
+            throw new \LogicException('Seule une clé Stripe de test (sk_test_...) est acceptée.');
+        }
 
         return $this->client ??= new StripeClient($this->secretKey);
     }

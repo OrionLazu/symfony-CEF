@@ -113,11 +113,6 @@ class Order
         return $this->totalInCents;
     }
 
-    public function getTotal(): float
-    {
-        return $this->totalInCents / 100;
-    }
-
     public function getDeliveryAddress(): ?string
     {
         return $this->deliveryAddress;

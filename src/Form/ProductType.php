@@ -46,6 +46,7 @@ class ProductType extends AbstractType
             ->add('featured', CheckboxType::class, [
                 'label' => 'Mis en avant',
                 'required' => false,
+                'help' => 'L\'accueil affiche les 3 premiers sweat-shirts mis en avant.',
             ]);
 
         foreach (['stockXs' => 'Stock XS', 'stockS' => 'Stock S', 'stockM' => 'Stock M', 'stockL' => 'Stock L', 'stockXl' => 'Stock XL'] as $field => $label) {

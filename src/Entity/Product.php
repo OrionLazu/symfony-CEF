@@ -29,9 +29,11 @@ class Product
 
     /** Prix TTC en euros, stocké en DECIMAL pour éviter les erreurs d'arrondi des flottants. */
     #[ORM\Column(type: Types::DECIMAL, precision: 8, scale: 2)]
-    #[Assert\NotBlank(message: 'Le prix est obligatoire.')]
-    #[Assert\Positive(message: 'Le prix doit être supérieur à 0.')]
-    #[Assert\LessThan(10000)]
+    #[Assert\Sequentially([
+        new Assert\NotBlank(message: 'Le prix est obligatoire.'),
+        new Assert\Positive(message: 'Le prix doit être supérieur à 0.'),
+        new Assert\LessThan(10000, message: 'Le prix doit être inférieur à 10 000 €.'),
+    ])]
     private string $price = '0.00';
 
     /** Nom du fichier image situé dans public/images/products. */
@@ -86,11 +88,12 @@ class Product
 
     /**
      * Accepte un nombre ou une chaîne ("29,90" ou "29.90") et la normalise au format DECIMAL.
+     * Une valeur vide ou invalide est conservée vide pour que la validation la signale.
      */
     public function setPrice(string|int|float|null $price): static
     {
         $normalized = str_replace(',', '.', trim((string) $price));
-        $this->price = is_numeric($normalized) ? number_format((float) $normalized, 2, '.', '') : '0.00';
+        $this->price = is_numeric($normalized) ? number_format((float) $normalized, 2, '.', '') : '';
 
         return $this;
     }

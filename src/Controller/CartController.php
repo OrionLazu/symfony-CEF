@@ -20,9 +20,11 @@ class CartController extends AbstractController
     #[Route('/cart', name: 'app_cart', methods: ['GET'])]
     public function index(CartService $cart): Response
     {
+        $items = $cart->getItems();
+
         return $this->render('cart/index.html.twig', [
-            'items' => $cart->getItems(),
-            'totalInCents' => $cart->getTotalInCents(),
+            'items' => $items,
+            'totalInCents' => $cart->getTotalInCents($items),
         ]);
     }
 

@@ -33,6 +33,11 @@ class CheckoutService
             throw new \DomainException('Votre panier est vide.');
         }
 
+        // Une commande précédente restée « en attente » (paiement abandonné) est remplacée par la nouvelle.
+        foreach ($this->orderRepository->findBy(['customer' => $customer, 'status' => Order::STATUS_PENDING]) as $previous) {
+            $previous->markAsCanceled();
+        }
+
         $order = new Order($customer);
         foreach ($items as $item) {
             // Le stock a pu baisser depuis l'ajout au panier : on revérifie avant de payer.
@@ -62,7 +67,7 @@ class CheckoutService
     }
 
     /**
-     * Valide la commande au retour de Stripe : contrôle du paiement, décrément du stock, panier vidé.
+     * Valide la commande au retour de Stripe : contrôle du paiement, décrément du stock, articles retirés du panier.
      *
      * L'opération est idempotente : recharger la page de confirmation ne décompte pas le stock deux fois.
      *
@@ -94,9 +99,25 @@ class CheckoutService
         $order->markAsPaid();
         $this->entityManager->flush();
 
-        $this->cart->clear();
+        // Seuls les articles achetés quittent le panier (un article ajouté entre-temps y reste).
+        foreach ($order->getItems() as $item) {
+            if (null !== $item->getProduct()?->getId()) {
+                $this->cart->remove($item->getProduct()->getId(), $item->getSize());
+            }
+        }
 
         return $order;
+    }
+
+    /**
+     * Annule une commande qui ne pourra pas être payée (erreur lors de la création du paiement).
+     */
+    public function cancelOrder(Order $order): void
+    {
+        if ($order->isPending()) {
+            $order->markAsCanceled();
+            $this->entityManager->flush();
+        }
     }
 
     /**
