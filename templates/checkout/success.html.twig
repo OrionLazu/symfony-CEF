@@ -1,0 +1,35 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Commande confirmée{% endblock %}
+
+{% block body %}
+    <section class="confirmation">
+        <h1 class="section-title">Merci pour votre commande !</h1>
+        <p>Votre paiement a bien été reçu. Commande n° <strong>{{ order.id }}</strong> du {{ order.paidAt|date('d/m/Y à H:i') }}.</p>
+
+        <table class="order-table">
+            <thead>
+                <tr><th scope="col">Article</th><th scope="col">Taille</th><th scope="col">Quantité</th><th scope="col">Prix</th></tr>
+            </thead>
+            <tbody>
+                {% for item in order.items %}
+                    <tr>
+                        <td>{{ item.productName }}</td>
+                        <td>{{ item.size.value }}</td>
+                        <td>{{ item.quantity }}</td>
+                        <td>{{ item.subtotalInCents|cents_to_euros }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr><th scope="row" colspan="3">Total</th><td><strong>{{ order.totalInCents|cents_to_euros }}</strong></td></tr>
+            </tfoot>
+        </table>
+
+        {% if order.deliveryAddress %}
+            <p>Livraison à : {{ order.deliveryAddress }}</p>
+        {% endif %}
+
+        <a class="btn btn-success" href="{{ path('app_products') }}">Continuer mes achats</a>
+    </section>
+{% endblock %}
