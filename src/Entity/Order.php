@@ -87,6 +87,9 @@ class Order
         return self::STATUS_PENDING === $this->status;
     }
 
+    /**
+     * Passe la commande au statut « payée » et horodate le paiement.
+     */
     public function markAsPaid(): static
     {
         $this->status = self::STATUS_PAID;
@@ -95,6 +98,9 @@ class Order
         return $this;
     }
 
+    /**
+     * Passe la commande au statut « annulée » (paiement abandonné).
+     */
     public function markAsCanceled(): static
     {
         $this->status = self::STATUS_CANCELED;

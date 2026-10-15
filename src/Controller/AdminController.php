@@ -76,6 +76,9 @@ class AdminController extends AbstractController
         ], new Response(null, $hasError ? Response::HTTP_UNPROCESSABLE_ENTITY : Response::HTTP_OK));
     }
 
+    /**
+     * Supprime un sweat-shirt (formulaire POST protégé par un jeton CSRF) et son image.
+     */
     #[Route('/product/{id<\d+>}/delete', name: 'app_admin_product_delete', methods: ['POST'])]
     public function delete(Product $product, Request $request): Response
     {

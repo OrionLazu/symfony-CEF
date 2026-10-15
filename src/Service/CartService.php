@@ -128,6 +128,9 @@ class CartService
         return [] === $this->getRawCart();
     }
 
+    /**
+     * Vide entièrement le panier (après un paiement confirmé).
+     */
     public function clear(): void
     {
         $this->getSession()->remove(self::SESSION_KEY);

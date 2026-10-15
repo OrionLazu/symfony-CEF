@@ -7,6 +7,8 @@ use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
+ * Accès aux lignes de commande en base de données.
+ *
  * @extends ServiceEntityRepository<OrderItem>
  */
 class OrderItemRepository extends ServiceEntityRepository

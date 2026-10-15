@@ -12,6 +12,9 @@ use Symfony\Component\Security\Core\User\UserInterface;
  */
 class UserChecker implements UserCheckerInterface
 {
+    /**
+     * Appelé avant la vérification du mot de passe : refuse les comptes non activés.
+     */
     public function checkPreAuth(UserInterface $user): void
     {
         if (!$user instanceof User) {
