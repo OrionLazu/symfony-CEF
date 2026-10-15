@@ -1,0 +1,26 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ product.name }}{% endblock %}
+
+{% block body %}
+    <article class="product-detail">
+        <img class="product-detail-img" src="{{ asset('images/products/' ~ (product.image ?? 'placeholder.png')) }}" alt="Sweat-shirt {{ product.name }}" width="402" height="502">
+
+        <div class="product-detail-info">
+            <h1 class="product-name">{{ product.name }}</h1>
+            <p class="product-price">{{ product.price|euros }}</p>
+
+            {% if product.totalStock > 0 %}
+                {{ form_start(form) }}
+                    {{ form_row(form.size) }}
+                    <button type="submit" class="btn">Ajouter au panier</button>
+                {{ form_end(form) }}
+                <p class="hint">Les tailles grisées sont en rupture de stock.</p>
+            {% else %}
+                <p class="flash flash-error">Ce sweat-shirt est en rupture de stock.</p>
+            {% endif %}
+
+            <p class="back-link"><a href="{{ path('app_products') }}">&larr; Retour à la boutique</a></p>
+        </div>
+    </article>
+{% endblock %}

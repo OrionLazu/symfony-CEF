@@ -1,0 +1,13 @@
+{# Carte produit (accueil et boutique). Le bouton « Voir » n'apparaît qu'aux utilisateurs connectés. #}
+<article class="card">
+    <img class="card-img" src="{{ asset('images/products/' ~ (product.image ?? 'placeholder.png')) }}" alt="Sweat-shirt {{ product.name }}" width="201" height="251" loading="lazy">
+    <div class="card-body">
+        <div>
+            <h3 class="card-title">{{ product.name }}</h3>
+            <p class="card-price">{{ product.price|euros }}</p>
+        </div>
+        {% if is_granted('ROLE_USER') %}
+            <a class="btn" href="{{ path('app_product_show', {id: product.id}) }}">Voir<span class="visually-hidden"> {{ product.name }}</span></a>
+        {% endif %}
+    </div>
+</article>
