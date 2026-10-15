@@ -44,20 +44,30 @@ class CheckoutController extends AbstractController
 
             return $this->redirectToRoute('app_cart');
         }
+        if (!$this->stripe->isTestMode()) {
+            $this->addFlash('error', 'Le paiement est désactivé : seule une clé Stripe de test est acceptée.');
+
+            return $this->redirectToRoute('app_cart');
+        }
 
         try {
             $order = $this->checkout->createOrderFromCart($this->getCustomer());
+        } catch (\DomainException $e) {
+            $this->addFlash('error', $e->getMessage());
+
+            return $this->redirectToRoute('app_cart');
+        }
+
+        try {
             $paymentUrl = $this->checkout->startPayment(
                 $order,
                 // Stripe remplace lui-même {CHECKOUT_SESSION_ID} : l'accolade ne doit pas être encodée.
                 $this->generateUrl('app_checkout_success', [], UrlGeneratorInterface::ABSOLUTE_URL).'?session_id={CHECKOUT_SESSION_ID}',
                 $this->generateUrl('app_checkout_cancel', [], UrlGeneratorInterface::ABSOLUTE_URL).'?session_id={CHECKOUT_SESSION_ID}',
             );
-        } catch (\DomainException $e) {
-            $this->addFlash('error', $e->getMessage());
-
-            return $this->redirectToRoute('app_cart');
         } catch (ApiErrorException $e) {
+            // La commande ne pourra pas être payée : elle est annulée pour ne pas rester « en attente ».
+            $this->checkout->cancelOrder($order);
             $this->logger->error('Création de la session Stripe impossible.', ['exception' => $e]);
             $this->addFlash('error', 'Le service de paiement est momentanément indisponible, veuillez réessayer.');
 
