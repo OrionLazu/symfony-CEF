@@ -29,7 +29,7 @@ Site e-commerce de la marque de sweat-shirts **Stubborn**, réalisé avec **Symf
 
 ## Prérequis
 
-- PHP **8.2** ou plus avec les extensions `pdo_mysql`, `ctype`, `iconv`, `mbstring` (XAMPP convient)
+- PHP **8.2** ou plus avec les extensions `pdo_mysql`, `curl`, `mbstring`, `ctype`, `iconv` (XAMPP convient). Pour `composer install`, activer aussi `extension=zip` dans le `php.ini` (désactivée par défaut dans XAMPP).
 - [Composer](https://getcomposer.org/)
 - MySQL **8**
 - Un compte [Stripe](https://dashboard.stripe.com/register) (mode test, gratuit, sans carte bancaire)
@@ -49,8 +49,8 @@ Créer un fichier **`.env.local`** (il n'est jamais versionné) à la racine :
 # Identifiants MySQL ; la base "stubborn" est créée automatiquement
 DATABASE_URL="mysql://UTILISATEUR:MOT_DE_PASSE@127.0.0.1:3306/stubborn?serverVersion=8.0.32&charset=utf8mb4"
 
-# Clés de TEST Stripe : https://dashboard.stripe.com/test/apikeys
-STRIPE_PUBLIC_KEY=pk_test_...
+# Clé secrète de TEST Stripe : https://dashboard.stripe.com/test/apikeys
+# (seule une clé sk_test_ est acceptée ; la clé publiable n'est pas nécessaire)
 STRIPE_SECRET_KEY=sk_test_...
 ```
 
@@ -86,7 +86,7 @@ composer db:init
     ✔ Le total est calculé sur toutes les lignes
     ✔ Retirer un article met à jour le total
     ...
-   OK (25 tests, 74 assertions)
+   OK (33 tests, 96 assertions)
    ```
 
 Les tests seuls se lancent avec `composer test`.
@@ -130,7 +130,9 @@ docs/               Documentation PDF, captures et wireframes
 ## Sécurité
 
 - Mots de passe hachés (algorithme `auto` de Symfony), jamais stockés en clair.
-- Protection **CSRF** sur tous les formulaires et actions (connexion, panier, suppression, paiement).
+- Protection **CSRF** sur tous les formulaires et actions (connexion, déconnexion, panier, suppression, paiement).
+- Connexion limitée à 5 tentatives par minute ; renvoi de l'e-mail d'activation limité à 3 par quart d'heure.
+- Paiement possible uniquement avec une clé Stripe de **test** (`sk_test_`) : aucune clé réelle ne peut encaisser.
 - Lien d'activation **signé et expirant** ; un lien falsifié est refusé.
 - `/admin` protégé deux fois : règle `access_control` et attribut `#[IsGranted('ROLE_ADMIN')]`.
 - Le paiement est **revérifié auprès de l'API Stripe** au retour : l'URL de retour seule ne suffit pas à valider une commande.
