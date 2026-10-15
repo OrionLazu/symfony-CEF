@@ -1,23 +1,66 @@
+{% set route = app.request.attributes.get('_route') %}
 <!DOCTYPE html>
-<html>
+<html lang="fr">
     <head>
         <meta charset="UTF-8">
-        <title>{% block title %}Welcome!{% endblock %}</title>
-        <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text><text y=%221.3em%22 x=%220.2em%22 font-size=%2276%22 fill=%22%23fff%22>sf</text></svg>">
-        {% block stylesheets %}
-        {% endblock %}
-
-        {% block javascripts %}
-        {% endblock %}
-
-        {% set frankenphp_hot_reload = app.request.server.get('FRANKENPHP_HOT_RELOAD') %}
-        {% if frankenphp_hot_reload %}
-        <meta name="frankenphp-hot-reload:url" content="{{ frankenphp_hot_reload }}">
-        <script src="https://cdn.jsdelivr.net/npm/idiomorph"></script>
-        <script src="https://cdn.jsdelivr.net/npm/frankenphp-hot-reload/+esm" type="module"></script>
-        {% endif %}
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="{{ company.name }} - {{ company.slogan }}. Boutique en ligne de sweat-shirts.">
+        <title>{% block title %}Accueil{% endblock %} | {{ company.name }}</title>
+        <link rel="icon" type="image/png" href="{{ asset('images/favicon.png') }}">
+        <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+        {% block stylesheets %}{% endblock %}
+        {% block javascripts %}{% endblock %}
     </head>
     <body>
-        {% block body %}{% endblock %}
+        <header class="site-header">
+            <div class="container header-inner">
+                <a class="brand" href="{{ path('app_home') }}" aria-label="{{ company.name }} - retour à l'accueil">
+                    <img src="{{ asset('images/logo.png') }}" alt="{{ company.name }}" width="140" height="98">
+                    <span class="brand-slogan">{{ company.slogan }}</span>
+                </a>
+
+                {% block header_title %}{% endblock %}
+
+                {# Menu dynamique : le lien de la page courante est en gras et souligné. #}
+                <nav class="main-nav" aria-label="Menu principal">
+                    <ul>
+                        {% block menu %}
+                            <li><a href="{{ path('app_home') }}" {% if route == 'app_home' %}class="active" aria-current="page"{% endif %}>Accueil</a></li>
+                            {% if is_granted('ROLE_USER') %}
+                                <li><a href="{{ path('app_products') }}" {% if route == 'app_products' %}class="active" aria-current="page"{% endif %}>Boutique</a></li>
+                                <li><a href="{{ path('app_cart') }}" {% if route == 'app_cart' %}class="active" aria-current="page"{% endif %}>Panier</a></li>
+                                {% if is_granted('ROLE_ADMIN') %}
+                                    <li><a href="{{ path('app_admin') }}">Back-office</a></li>
+                                {% endif %}
+                                <li><a href="{{ path('app_logout') }}">Se déconnecter</a></li>
+                            {% else %}
+                                <li><a href="{{ path('app_register') }}" {% if route == 'app_register' %}class="active" aria-current="page"{% endif %}>S'inscrire</a></li>
+                                <li><a href="{{ path('app_login') }}" {% if route == 'app_login' %}class="active" aria-current="page"{% endif %}>Se connecter</a></li>
+                            {% endif %}
+                        {% endblock %}
+                    </ul>
+                </nav>
+            </div>
+        </header>
+
+        <main class="container main-content">
+            {% for type, messages in app.flashes(['success', 'error']) %}
+                {% for message in messages %}
+                    <p class="flash flash-{{ type }}" role="{{ type == 'error' ? 'alert' : 'status' }}">{{ message }}</p>
+                {% endfor %}
+            {% endfor %}
+
+            {% block body %}{% endblock %}
+        </main>
+
+        <footer class="site-footer">
+            <div class="container footer-inner">
+                <p><strong>{{ company.name }}</strong> - {{ company.slogan }}</p>
+                <address>
+                    {{ company.address }}<br>
+                    Contact : <a href="mailto:{{ company.email }}">{{ company.email }}</a>
+                </address>
+            </div>
+        </footer>
     </body>
 </html>
