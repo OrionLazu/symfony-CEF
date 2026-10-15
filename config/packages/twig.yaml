@@ -1,5 +1,13 @@
 twig:
     file_name_pattern: '*.twig'
+    form_themes: ['form/stubborn_layout.html.twig']
+    # Informations de la société affichées dans le pied de page et sur l'accueil.
+    globals:
+        company:
+            name: 'Stubborn'
+            slogan: "Don't compromise on your look"
+            address: 'Piccadilly Circus, London W1J 0DA, Royaume-Uni'
+            email: 'stubborn@blabla.com'
 
 when@test:
     twig:
