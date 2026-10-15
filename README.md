@@ -105,7 +105,7 @@ Ces comptes n'existent que dans les données de démonstration locales (`src/Dat
 1. Se connecter avec `johndoe`, ouvrir la **Boutique**, cliquer sur **Voir**, choisir une taille, **Ajouter au panier**.
 2. Dans le **Panier**, cliquer sur **Finaliser ma commande** : la page de paiement Stripe s'ouvre en « Environnement de test ».
 3. Payer avec la carte de test Stripe **`4242 4242 4242 4242`**, une date d'expiration future (ex. `12/30`) et n'importe quel CVC (ex. `123`).
-4. Stripe renvoie vers la page de confirmation : la commande est enregistrée comme payée, le stock est décrémenté et le panier vidé.
+4. Stripe renvoie vers la page de confirmation : la commande est enregistrée comme payée, le stock est décrémenté et les articles achetés sont retirés du panier.
 
 Autres cartes de test utiles : `4000 0000 0000 9995` (paiement refusé), `4000 0025 0000 3155` (authentification 3D Secure).
 

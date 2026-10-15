@@ -20,6 +20,9 @@ class AccessDeniedHandler implements AccessDeniedHandlerInterface
     {
     }
 
+    /**
+     * Ajoute un message d'erreur et redirige vers la page d'accueil.
+     */
     public function handle(Request $request, AccessDeniedException $accessDeniedException): ?Response
     {
         $session = $request->hasSession() ? $request->getSession() : null;
