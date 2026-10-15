@@ -112,6 +112,18 @@ class StripeServiceTest extends TestCase
         (new StripeService(''))->isCheckoutSessionPaid('cs_test_abc');
     }
 
+    #[TestDox('Une clé Stripe réelle (sk_live_) est refusée')]
+    public function testLiveKeyIsRefused(): void
+    {
+        $this->expectException(\LogicException::class);
+
+        try {
+            (new StripeService('sk_live_123'))->isCheckoutSessionPaid('cs_test_abc');
+        } finally {
+            self::assertSame([], $this->http->requests, 'Aucune requête ne doit partir vers Stripe.');
+        }
+    }
+
     private function makeOrder(): Order
     {
         $order = EntityFactory::withId(new Order(EntityFactory::customer()), 42);

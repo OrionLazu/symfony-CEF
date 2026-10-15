@@ -25,11 +25,6 @@ final class CartItem
         return $productId.'-'.$size->value;
     }
 
-    public function getKey(): string
-    {
-        return self::key((int) $this->product->getId(), $this->size);
-    }
-
     public function getSubtotalInCents(): int
     {
         return $this->product->getPriceInCents() * $this->quantity;

@@ -1,4 +1,7 @@
-# Enable stateless CSRF protection for forms and logins/logouts
+# Protection CSRF.
+# Les formulaires Symfony utilisent un jeton « sans état » (vérification de l'origine des requêtes POST).
+# La connexion et la déconnexion gardent un jeton classique stocké en session : la déconnexion est un lien
+# (requête GET), pour lequel le navigateur n'envoie pas forcément d'en-tête Origin.
 framework:
     form:
         csrf_protection:
@@ -7,5 +10,3 @@ framework:
     csrf_protection:
         stateless_token_ids:
             - submit
-            - authenticate
-            - logout

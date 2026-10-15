@@ -34,8 +34,8 @@ class PurchaseTest extends TestCase
     private Product $blackbelt;
     private Product $pokeball;
 
-    /** Commandes « enregistrées » par le faux EntityManager. */
-    private ?Order $savedOrder = null;
+    /** @var list<Order> commandes « enregistrées » par le faux EntityManager */
+    private array $savedOrders = [];
 
     protected function setUp(): void
     {
@@ -57,18 +57,28 @@ class PurchaseTest extends TestCase
         $requestStack->push($request);
         $this->cart = new CartService($requestStack, $productRepository);
 
-        // Persistance simulée : l'id 100 est attribué à la commande comme le ferait MySQL.
+        // Persistance simulée : un id (100, 101…) est attribué à chaque commande comme le ferait MySQL.
         $entityManager = $this->createStub(EntityManagerInterface::class);
         $entityManager->method('persist')->willReturnCallback(function (object $entity): void {
             if ($entity instanceof Order) {
-                $this->savedOrder = EntityFactory::withId($entity, 100);
+                $this->savedOrders[] = EntityFactory::withId($entity, 100 + count($this->savedOrders));
             }
         });
 
         $orderRepository = $this->createStub(OrderRepository::class);
-        $orderRepository->method('findOneBy')->willReturnCallback(
-            fn (array $criteria) => $this->savedOrder?->getStripeSessionId() === $criteria['stripeSessionId'] ? $this->savedOrder : null,
-        );
+        $orderRepository->method('findOneBy')->willReturnCallback(function (array $criteria): ?Order {
+            foreach ($this->savedOrders as $order) {
+                if (null !== $order->getStripeSessionId() && $order->getStripeSessionId() === $criteria['stripeSessionId']) {
+                    return $order;
+                }
+            }
+
+            return null;
+        });
+        $orderRepository->method('findBy')->willReturnCallback(fn (array $criteria): array => array_values(array_filter(
+            $this->savedOrders,
+            static fn (Order $order) => $order->getCustomer() === $criteria['customer'] && $order->getStatus() === $criteria['status'],
+        )));
 
         $this->checkout = new CheckoutService($this->cart, new StripeService('sk_test_fake'), $entityManager, $orderRepository);
     }
@@ -187,5 +197,50 @@ class PurchaseTest extends TestCase
 
         $this->expectException(\DomainException::class);
         $this->checkout->createOrderFromCart(EntityFactory::customer());
+    }
+
+    #[TestDox('Un article ajouté pendant le paiement reste dans le panier')]
+    public function testItemAddedDuringPaymentStaysInCart(): void
+    {
+        $customer = EntityFactory::customer();
+        $this->cart->add($this->blackbelt, Size::M);
+        $order = $this->checkout->createOrderFromCart($customer);
+        $this->http->queueResponse(['id' => 'cs_test_tab', 'object' => 'checkout.session', 'url' => 'https://checkout.stripe.com/x']);
+        $this->checkout->startPayment($order, 'https://s', 'https://c');
+
+        // Pendant le paiement, le client ajoute un autre article dans un second onglet.
+        $this->cart->add($this->pokeball, Size::S);
+
+        $this->http->queueResponse(['id' => 'cs_test_tab', 'object' => 'checkout.session', 'payment_status' => 'paid']);
+        $this->checkout->confirmPayment('cs_test_tab', $customer);
+
+        $items = $this->cart->getItems();
+        self::assertCount(1, $items);
+        self::assertSame('Pokeball', $items[0]->product->getName());
+    }
+
+    #[TestDox('Une nouvelle commande annule la commande abandonnée précédente')]
+    public function testNewOrderCancelsAbandonedPendingOrder(): void
+    {
+        $customer = EntityFactory::customer();
+        $this->cart->add($this->blackbelt, Size::M);
+
+        $abandoned = $this->checkout->createOrderFromCart($customer);
+        $second = $this->checkout->createOrderFromCart($customer);
+
+        self::assertSame(Order::STATUS_CANCELED, $abandoned->getStatus());
+        self::assertTrue($second->isPending());
+    }
+
+    #[TestDox('Une erreur Stripe annule la commande en attente')]
+    public function testOrderCanBeCanceledAfterPaymentError(): void
+    {
+        $this->cart->add($this->blackbelt, Size::M);
+        $order = $this->checkout->createOrderFromCart(EntityFactory::customer());
+
+        $this->checkout->cancelOrder($order);
+
+        self::assertSame(Order::STATUS_CANCELED, $order->getStatus());
+        self::assertSame(3, $this->blackbelt->getStock(Size::M));
     }
 }

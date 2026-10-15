@@ -109,10 +109,12 @@ class CartService
 
     /**
      * Montant total du panier en centimes.
+     *
+     * @param list<CartItem>|null $items lignes déjà chargées, pour éviter de relire la base
      */
-    public function getTotalInCents(): int
+    public function getTotalInCents(?array $items = null): int
     {
-        return array_sum(array_map(static fn (CartItem $item) => $item->getSubtotalInCents(), $this->getItems()));
+        return array_sum(array_map(static fn (CartItem $item) => $item->getSubtotalInCents(), $items ?? $this->getItems()));
     }
 
     /**

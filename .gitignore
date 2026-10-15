@@ -13,3 +13,11 @@
 /phpunit.xml
 /.phpunit.cache/
 ###< phpunit/phpunit ###
+
+###> app ###
+# Images envoyées depuis le back-office : seules les images d'origine sont versionnées.
+/public/images/products/*
+!/public/images/products/[0-9].jpeg
+!/public/images/products/[0-9][0-9].jpeg
+!/public/images/products/placeholder.png
+###< app ###

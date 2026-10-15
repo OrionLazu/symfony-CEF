@@ -14,6 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\RateLimiter\RateLimiterFactory;
 use Symfony\Component\Routing\Attribute\Route;
 use SymfonyCasts\Bundle\VerifyEmail\Exception\VerifyEmailExceptionInterface;
 
@@ -100,10 +101,19 @@ class RegistrationController extends AbstractController
      * Renvoie un lien d'activation (depuis la page de connexion).
      */
     #[Route('/verify/resend', name: 'app_verify_resend', methods: ['POST'])]
-    public function resend(Request $request, UserRepository $userRepository, LoggerInterface $logger): Response
+    public function resend(Request $request, UserRepository $userRepository, LoggerInterface $logger, RateLimiterFactory $verifyResendLimiter): Response
     {
         if (!$this->isCsrfTokenValid('verify_resend', (string) $request->request->get('_token'))) {
-            throw $this->createAccessDeniedException();
+            $this->addFlash('error', 'Session expirée, veuillez réessayer.');
+
+            return $this->redirectToRoute('app_login');
+        }
+
+        // Limite les envois pour éviter qu'un tiers inonde une boîte mail.
+        if (!$verifyResendLimiter->create((string) $request->getClientIp())->consume()->isAccepted()) {
+            $this->addFlash('error', 'Trop de demandes d\'envoi, réessayez dans quelques minutes.');
+
+            return $this->redirectToRoute('app_login');
         }
 
         $user = $userRepository->findOneBy(['name' => trim((string) $request->request->get('name'))]);
