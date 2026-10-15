@@ -28,6 +28,9 @@ class EmailVerifier
     ) {
     }
 
+    /**
+     * Envoie l'e-mail contenant le lien d'activation signé.
+     */
     public function sendEmailConfirmation(User $user): void
     {
         $signature = $this->verifyEmailHelper->generateSignature(
@@ -53,6 +56,8 @@ class EmailVerifier
     }
 
     /**
+     * Vérifie la signature du lien reçu et active le compte.
+     *
      * @throws VerifyEmailExceptionInterface si le lien est invalide ou expiré
      */
     public function handleEmailConfirmation(Request $request, User $user): void

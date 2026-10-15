@@ -40,6 +40,9 @@ final class PriceRange
         return self::all()[(string) $key] ?? null;
     }
 
+    /**
+     * Indique si un prix appartient à cette fourchette.
+     */
     public function contains(float $price): bool
     {
         return $price >= $this->min && ($this->includeMax ? $price <= $this->max : $price < $this->max);

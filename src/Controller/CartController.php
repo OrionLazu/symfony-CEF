@@ -14,6 +14,9 @@ use Symfony\Component\Routing\Attribute\Route;
  */
 class CartController extends AbstractController
 {
+    /**
+     * Affiche le contenu du panier et son montant total.
+     */
     #[Route('/cart', name: 'app_cart', methods: ['GET'])]
     public function index(CartService $cart): Response
     {
@@ -23,6 +26,9 @@ class CartController extends AbstractController
         ]);
     }
 
+    /**
+     * Retire une ligne du panier (un sweat-shirt dans une taille) ; le total est recalculé à l'affichage.
+     */
     #[Route('/cart/remove/{id<\d+>}/{size}', name: 'app_cart_remove', methods: ['POST'])]
     public function remove(int $id, string $size, Request $request, CartService $cart): Response
     {

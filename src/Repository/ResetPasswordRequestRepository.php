@@ -11,6 +11,8 @@ use SymfonyCasts\Bundle\ResetPassword\Persistence\Repository\ResetPasswordReques
 use SymfonyCasts\Bundle\ResetPassword\Persistence\ResetPasswordRequestRepositoryInterface;
 
 /**
+ * Stockage des demandes de réinitialisation de mot de passe.
+ *
  * @extends ServiceEntityRepository<ResetPasswordRequest>
  */
 class ResetPasswordRequestRepository extends ServiceEntityRepository implements ResetPasswordRequestRepositoryInterface
@@ -23,6 +25,8 @@ class ResetPasswordRequestRepository extends ServiceEntityRepository implements 
     }
 
     /**
+     * Crée l'entité de demande de réinitialisation pour un utilisateur.
+     *
      * @param User $user
      */
     public function createResetPasswordRequest(object $user, \DateTimeInterface $expiresAt, string $selector, string $hashedToken): ResetPasswordRequestInterface
