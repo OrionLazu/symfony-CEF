@@ -15,12 +15,21 @@
 {%- endblock form_row -%}
 
 {%- block checkbox_row -%}
-    <div class="form-row form-row-checkbox{% if errors|length > 0 %} has-error{% endif %}">
-        {{- form_widget(form) -}}
-        {{- form_label(form) -}}
-        {{- form_errors(form) -}}
+    <div class="form-row-checkbox-wrapper">
+        <div class="form-row form-row-checkbox{% if errors|length > 0 %} has-error{% endif %}">
+            {{- form_widget(form, help is not empty ? {attr: {'aria-describedby': id ~ '_help'}} : {}) -}}
+            {{- form_label(form) -}}
+            {{- form_errors(form) -}}
+        </div>
+        {{- form_help(form) -}}
     </div>
 {%- endblock checkbox_row -%}
+
+{%- block form_help -%}
+    {%- if help is not empty -%}
+        <p id="{{ id }}_help" class="hint">{{ help|trans(help_translation_parameters, translation_domain) }}</p>
+    {%- endif -%}
+{%- endblock form_help -%}
 
 {%- block form_errors -%}
     {%- if errors|length > 0 -%}
