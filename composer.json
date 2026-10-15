@@ -17,11 +17,13 @@
         "symfony/flex": "^2",
         "symfony/form": "7.4.*",
         "symfony/framework-bundle": "7.4.*",
+        "symfony/http-client": "7.4.*",
         "symfony/mailer": "7.4.*",
         "symfony/monolog-bundle": "^4.1",
         "symfony/runtime": "7.4.*",
         "symfony/security-bundle": "7.4.*",
         "symfony/security-csrf": "7.4.*",
+        "symfony/translation": "7.4.*",
         "symfony/twig-bundle": "7.4.*",
         "symfony/validator": "7.4.*",
         "symfony/yaml": "7.4.*",
@@ -68,6 +70,19 @@
         ],
         "post-update-cmd": [
             "@auto-scripts"
+        ],
+        "test": [
+            "@php bin/phpunit --testdox"
+        ],
+        "start": [
+            "Composer\\Config::disableProcessTimeout",
+            "@php bin/phpunit --testdox",
+            "@php -S 127.0.0.1:8000 -t public"
+        ],
+        "db:init": [
+            "@php bin/console doctrine:database:create --if-not-exists",
+            "@php bin/console doctrine:migrations:migrate --no-interaction",
+            "@php bin/console doctrine:fixtures:load --no-interaction"
         ]
     },
     "conflict": {
@@ -87,5 +102,10 @@
         "symfony/css-selector": "7.4.*",
         "symfony/maker-bundle": "^1.68",
         "symfony/web-profiler-bundle": "7.4.*"
+    },
+    "scripts-descriptions": {
+        "test": "Lance les tests unitaires (panier, Stripe, achat).",
+        "start": "Lance les tests puis le serveur local sur http://127.0.0.1:8000.",
+        "db:init": "Crée la base MySQL, le schéma et charge les données de démonstration."
     }
 }

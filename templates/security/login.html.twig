@@ -1,0 +1,44 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Se connecter{% endblock %}
+
+{% block body %}
+    <div class="auth-box">
+        <h1 class="auth-title">Se connecter</h1>
+
+        {% if error %}
+            <p class="flash flash-error" role="alert">
+                {{ error.messageKey|trans(error.messageData, 'security') }}
+            </p>
+        {% endif %}
+
+        <form method="post" action="{{ path('app_login') }}">
+            <div class="form-row">
+                <label for="username">Nom utilisateur :</label>
+                <input type="text" value="{{ last_username }}" name="_username" id="username" autocomplete="username" placeholder="johndoe" required autofocus>
+            </div>
+            <div class="form-row">
+                <label for="password">Mot de passe :</label>
+                <input type="password" name="_password" id="password" autocomplete="current-password" required>
+            </div>
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+            <button type="submit" class="btn btn-primary">Se Connecter</button>
+        </form>
+
+        <p><a href="{{ path('app_forgot_password_request') }}">Mot de passe oublié</a></p>
+
+        <hr>
+        <p>Pas encore inscrit ?</p>
+        <a class="btn btn-primary" href="{{ path('app_register') }}">Créer un compte</a>
+
+        {% if error and error.messageKey starts with 'Votre compte n' %}
+            <form method="post" action="{{ path('app_verify_resend') }}" class="resend">
+                <input type="hidden" name="name" value="{{ last_username }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('verify_resend') }}">
+                <button type="submit" class="btn-link">Renvoyer l'e-mail d'activation</button>
+            </form>
+        {% endif %}
+
+        <p class="back-link"><a href="{{ path('app_home') }}">&larr; Retour à l'accueil</a></p>
+    </div>
+{% endblock %}

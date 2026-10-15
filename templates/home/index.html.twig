@@ -1,0 +1,33 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Accueil{% endblock %}
+
+{% block body %}
+    <h1 class="visually-hidden">{{ company.name }} - {{ company.slogan }}</h1>
+
+    <section aria-labelledby="featured-title">
+        <h2 id="featured-title" class="section-title">Nos sweat-shirts du moment</h2>
+        {% if featuredProducts is empty %}
+            <p>Aucun sweat-shirt n'est mis en avant pour le moment.</p>
+        {% else %}
+            <div class="grid">
+                {% for product in featuredProducts %}
+                    {{ include('product/_card.html.twig') }}
+                {% endfor %}
+            </div>
+        {% endif %}
+    </section>
+
+    <section class="about" aria-labelledby="about-title">
+        <h2 id="about-title" class="section-title">La société Stubborn</h2>
+        <p>
+            Née au cœur de Londres, à deux pas de Piccadilly Circus, <strong>Stubborn</strong> dessine des sweat-shirts
+            pour celles et ceux qui refusent de choisir entre confort et caractère.
+            Coupes généreuses, coton épais, motifs affirmés : chaque pièce est pensée pour durer.
+        </p>
+        <p>Notre devise : <em>{{ company.slogan }}</em>.</p>
+        {% if not is_granted('ROLE_USER') %}
+            <p><a href="{{ path('app_register') }}">Créez votre compte</a> ou <a href="{{ path('app_login') }}">connectez-vous</a> pour découvrir toute la collection.</p>
+        {% endif %}
+    </section>
+{% endblock %}

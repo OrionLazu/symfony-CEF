@@ -1,0 +1,69 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Back-office{% endblock %}
+
+{% block header_title %}
+    <p class="header-title">Back-Office</p>
+{% endblock %}
+
+{% block menu %}
+    <li><a href="{{ path('app_products') }}">Boutique</a></li>
+    <li><a href="{{ path('app_logout') }}">Se déconnecter</a></li>
+{% endblock %}
+
+{# Champs communs aux formulaires d'ajout et de modification. #}
+{% macro product_fields(form) %}
+    <div class="admin-fields">
+        {{ form_row(form.name) }}
+        {{ form_row(form.price) }}
+        {{ form_row(form.stockXs) }}
+        {{ form_row(form.stockS) }}
+        {{ form_row(form.stockM) }}
+        {{ form_row(form.stockL) }}
+        {{ form_row(form.stockXl) }}
+    </div>
+    <div class="admin-fields admin-fields-secondary">
+        {{ form_row(form.imageFile) }}
+        {{ form_row(form.featured) }}
+    </div>
+{% endmacro %}
+
+{% block body %}
+    <h1 class="visually-hidden">Back-office : gestion des sweat-shirts</h1>
+
+    <section class="admin-row admin-row-new" aria-labelledby="new-title">
+        <div class="admin-thumb admin-thumb-empty" aria-hidden="true">+</div>
+        <div class="admin-content">
+            <h2 id="new-title" class="admin-row-title">Ajouter un sweat-shirt</h2>
+            {{ form_start(newForm) }}
+                {{ _self.product_fields(newForm) }}
+                <div class="admin-actions">
+                    <button type="submit" class="btn">Ajouter</button>
+                </div>
+            {{ form_end(newForm) }}
+        </div>
+    </section>
+
+    {% for entry in editForms %}
+        {% set product = entry.product %}
+        <section class="admin-row" aria-label="Sweat-shirt {{ product.name }}">
+            <img class="admin-thumb" src="{{ asset('images/products/' ~ (product.image ?? 'placeholder.png')) }}" alt="Sweat-shirt {{ product.name }}" width="120" height="150">
+            <div class="admin-content">
+                {{ form_start(entry.form) }}
+                    {{ _self.product_fields(entry.form) }}
+                    <div class="admin-actions">
+                        {# Le bouton Supprimer envoie le formulaire dédié ci-dessous (les formulaires ne peuvent pas être imbriqués). #}
+                        <button type="submit" class="btn" form="delete-product-{{ product.id }}">Supprimer</button>
+                        <button type="submit" class="btn">Modifier</button>
+                    </div>
+                {{ form_end(entry.form) }}
+                <form method="post" action="{{ path('app_admin_product_delete', {id: product.id}) }}" id="delete-product-{{ product.id }}"
+                      onsubmit="return confirm('Supprimer définitivement {{ product.name|e('js') }} ?');">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete_product_' ~ product.id) }}">
+                </form>
+            </div>
+        </section>
+    {% else %}
+        <p>Aucun sweat-shirt en base de données.</p>
+    {% endfor %}
+{% endblock %}

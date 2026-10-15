@@ -1,0 +1,43 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Boutique{% endblock %}
+
+{% block body %}
+    <h1 class="section-title">Boutique</h1>
+
+    <div class="shop">
+        <aside class="filter">
+            <form method="get" action="{{ path('app_products') }}" id="price-filter">
+                <label for="range" class="filter-title">Fourchette de prix</label>
+                <select name="range" id="range" size="4">
+                    <option value="" {% if currentRange is null %}selected{% endif %}>Tous les prix</option>
+                    {% for range in ranges %}
+                        <option value="{{ range.key }}" {% if currentRange and currentRange.key == range.key %}selected{% endif %}>{{ range.label }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="btn btn-small">Filtrer</button>
+            </form>
+        </aside>
+
+        <section class="shop-products" aria-live="polite">
+            {% if products is empty %}
+                <p>Aucun sweat-shirt ne correspond à cette fourchette de prix.</p>
+            {% else %}
+                <div class="grid">
+                    {% for product in products %}
+                        {{ include('product/_card.html.twig') }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </section>
+    </div>
+
+    <p class="back-link"><a href="{{ path('app_home') }}">&larr; Retour à l'accueil</a></p>
+
+    <script>
+        // Le filtre s'applique dès qu'une fourchette est choisie (le bouton reste utile sans JavaScript).
+        document.getElementById('range').addEventListener('change', function () {
+            this.form.submit();
+        });
+    </script>
+{% endblock %}
