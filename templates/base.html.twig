@@ -30,9 +30,9 @@
                                 <li><a href="{{ path('app_products') }}" {% if route == 'app_products' %}class="active" aria-current="page"{% endif %}>Boutique</a></li>
                                 <li><a href="{{ path('app_cart') }}" {% if route == 'app_cart' %}class="active" aria-current="page"{% endif %}>Panier</a></li>
                                 {% if is_granted('ROLE_ADMIN') %}
-                                    <li><a href="{{ path('app_admin') }}">Back-office</a></li>
+                                    <li><a href="{{ path('app_admin') }}" {% if route and route starts with 'app_admin' %}class="active" aria-current="page"{% endif %}>Back-office</a></li>
                                 {% endif %}
-                                <li><a href="{{ path('app_logout') }}">Se déconnecter</a></li>
+                                <li><a href="{{ logout_path('main') }}">Se déconnecter</a></li>
                             {% else %}
                                 <li><a href="{{ path('app_register') }}" {% if route == 'app_register' %}class="active" aria-current="page"{% endif %}>S'inscrire</a></li>
                                 <li><a href="{{ path('app_login') }}" {% if route == 'app_login' %}class="active" aria-current="page"{% endif %}>Se connecter</a></li>
