@@ -1,0 +1,15 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nouveau mot de passe{% endblock %}
+
+{% block body %}
+    <div class="auth-box">
+        <h1 class="auth-title">Nouveau mot de passe</h1>
+
+        {{ form_start(resetForm, {attr: {novalidate: 'novalidate'}}) }}
+            {{ form_row(resetForm.plainPassword.first) }}
+            {{ form_row(resetForm.plainPassword.second) }}
+            <button type="submit" class="btn btn-primary">Enregistrer</button>
+        {{ form_end(resetForm) }}
+    </div>
+{% endblock %}

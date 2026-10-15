@@ -1,0 +1,22 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}S'inscrire{% endblock %}
+
+{% block body %}
+    <div class="auth-box">
+        <h1 class="auth-title">S'inscrire</h1>
+
+        {{ form_start(registrationForm, {attr: {novalidate: 'novalidate'}}) }}
+            {{ form_row(registrationForm.name) }}
+            {{ form_row(registrationForm.email) }}
+            {{ form_row(registrationForm.deliveryAddress) }}
+            {{ form_row(registrationForm.plainPassword.first) }}
+            {{ form_row(registrationForm.plainPassword.second) }}
+            <button type="submit" class="btn btn-primary">Créer un compte</button>
+        {{ form_end(registrationForm) }}
+
+        <hr>
+        <p>Déjà inscrit ?</p>
+        <a class="btn btn-primary" href="{{ path('app_login') }}">Se Connecter</a>
+    </div>
+{% endblock %}
